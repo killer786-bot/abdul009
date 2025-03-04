@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Airdrop - Home</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+            color: white;
+            text-align: center;
+            background: linear-gradient(to right, #0f0c29, #302b63, #24243e);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .navbar {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+        button {
+            background: linear-gradient(45deg, #ff9900, #ff6600);
+            border: none;
+            padding: 12px 25px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0px 5px 15px rgba(255, 165, 0, 0.4);
+        }
+        button:hover {
+            background: linear-gradient(45deg, #ff6600, #ff3300);
+            box-shadow: 0px 5px 20px rgba(255, 99, 71, 0.7);
+            transform: scale(1.1);
+        }
+        #usernameContainer {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        input {
+            padding: 12px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            margin-right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg"></canvas>
+    <div class="navbar">
+        <button id="connectWallet">Connect Wallet</button>
+    </div>
+    <div class="content">
+        <h1 style="font-size: 3rem; font-weight: bold;">🚀 Welcome to Crypto Airdrop</h1>
+        <p style="font-size: 1.2rem; opacity: 0.8;">Connect your wallet to get started</p>
+        <div id="usernameContainer">
+            <input type="text" id="username" placeholder="Enter your username">
+            <button id="enterDashboard">Enter Dashboard</button>
+        </div>
+    </div>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("bg") });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const geometry = new THREE.CircleGeometry(5, 64);
+        const material = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 1, roughness: 0.3 });
+        const coin = new THREE.Mesh(geometry, material);
+        scene.add(coin);
+
+        const light = new THREE.PointLight(0xffffff, 1, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+
+        camera.position.z = 20;
+        function animate() {
+            requestAnimationFrame(animate);
+            coin.rotation.y += 0.05;
+            coin.rotation.x += 0.02;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        let account;
+        document.getElementById("connectWallet").addEventListener("click", async () => {
+            if (window.ethereum) {
+                const web3 = new Web3(window.ethereum);
+                try {
+                    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                    account = accounts[0];
+                    document.getElementById("connectWallet").innerText = "Connected: " + account.slice(0, 6) + "...";
+                    document.getElementById("usernameContainer").style.display = "block";
+                } catch (error) {
+                    console.error("User denied wallet connection");
+                }
+            } else {
+                alert("Please install MetaMask to connect");
+            }
+        });
+
+        document.getElementById("enterDashboard").addEventListener("click", () => {
+            const username = document.getElementById("username").value;
+            if (username) {
+                localStorage.setItem("username", username);
+                localStorage.setItem("wallet", account);
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Please enter a username");
+            }
+        });
+    </script>
+</body>
+</html>
