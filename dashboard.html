@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Airdrop - Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .dashboard {
+            display: none;
+            width: 80%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0px 5px 20px rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        .task-btn {
+            background: linear-gradient(45deg, #ff9900, #ff6600);
+            border: none;
+            padding: 12px 25px;
+            margin: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+            border-radius: 8px;
+            transition: 0.3s ease-in-out;
+            box-shadow: 0px 5px 15px rgba(255, 165, 0, 0.4);
+        }
+        .task-btn:hover {
+            background: linear-gradient(45deg, #ff6600, #ff3300);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard" id="dashboard">
+        <h2>Welcome, <span id="username">User</span></h2>
+        <p>Wallet Address: <span id="walletAddress">Not Connected</span></p>
+        <h3>Your Points: <span id="userPoints">0</span></h3>
+        <h3>Complete Tasks to Earn Points</h3>
+        <button class="task-btn" onclick="completeTask()">Complete Task</button>
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const username = localStorage.getItem("username");
+            const wallet = localStorage.getItem("wallet");
+            
+            if (!username || !wallet) {
+                window.location.href = "index.html"; // Redirect to home if not logged in
+            } else {
+                document.getElementById("username").innerText = username;
+                document.getElementById("walletAddress").innerText = wallet;
+                document.getElementById("dashboard").style.display = "block";
+            }
+        });
+
+        function completeTask() {
+            let currentPoints = parseInt(localStorage.getItem("userPoints")) || 0;
+            currentPoints += 10; // Task Reward
+            localStorage.setItem("userPoints", currentPoints);
+            document.getElementById("userPoints").innerText = currentPoints;
+            alert("Task Completed! You earned 10 points.");
+        }
+    </script>
+</body>
+</html>
