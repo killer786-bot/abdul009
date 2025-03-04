@@ -13,28 +13,55 @@
             background: #0d0d0d;
             color: white;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .dashboard {
+        .dashboard-container {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 10px;
-            box-shadow: 0px 5px 20px rgba(255, 255, 255, 0.1);
-            width: 300px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            box-shadow: 0px 5px 20px rgba(255, 255, 255, 0.2);
+            width: 400px;
         }
-        .wallet {
+        .wallet-info {
             position: absolute;
             top: 20px;
-            right: 20px;
+            right: 30px;
             background: rgba(255, 255, 255, 0.1);
             padding: 10px 20px;
             border-radius: 10px;
             font-size: 14px;
+        }
+        .nav-buttons {
+            margin-top: 20px;
+        }
+        .nav-buttons button {
+            background: #ff9900;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            color: white;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .nav-buttons button:hover {
+            background: #cc7700;
+        }
+        .section {
+            display: none;
+        }
+        .active {
+            display: block;
         }
         canvas {
             position: absolute;
@@ -48,10 +75,36 @@
 </head>
 <body>
     <canvas id="bg"></canvas>
-    <div class="wallet" id="walletAddress">Wallet: Not Connected</div>
-    <div class="dashboard">
-        <h2>Your Points</h2>
-        <h1 id="userPoints">0</h1>
+    <div class="wallet-info" id="walletAddress">Wallet: Not Connected</div>
+    <div class="dashboard-container">
+        <div class="nav-buttons">
+            <button onclick="showSection('points')">🏆 Points</button>
+            <button onclick="showSection('tasks')">✅ Tasks</button>
+            <button onclick="showSection('referrals')">👥 Referrals</button>
+            <button onclick="showSection('airdrop')">🎁 Airdrop</button>
+        </div>
+        
+        <div id="points" class="section active">
+            <h2>Your Points</h2>
+            <h1 id="userPoints">0</h1>
+        </div>
+        
+        <div id="tasks" class="section">
+            <h2>Complete Tasks to Earn Points</h2>
+            <button onclick="completeTask()">Complete Task +10 Points</button>
+        </div>
+        
+        <div id="referrals" class="section">
+            <h2>Refer & Earn</h2>
+            <p>Share your referral link:</p>
+            <input type="text" id="referralLink" readonly>
+            <button onclick="copyReferral()">Copy Link</button>
+        </div>
+        
+        <div id="airdrop" class="section">
+            <h2>Claim Your Airdrop</h2>
+            <button onclick="claimAirdrop()">Claim Now</button>
+        </div>
     </div>
     
     <script>
@@ -60,10 +113,35 @@
             const points = localStorage.getItem("userPoints") || 0;
             document.getElementById("walletAddress").innerText = `Wallet: ${wallet || "Not Connected"}`;
             document.getElementById("userPoints").innerText = points;
+            document.getElementById("referralLink").value = `https://yourwebsite.com/referral?user=${wallet}`;
             if (!wallet) {
-                window.location.href = "index.html"; // Redirect if not logged in
+                window.location.href = "index.html";
             }
         });
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function completeTask() {
+            let currentPoints = parseInt(localStorage.getItem("userPoints")) || 0;
+            currentPoints += 10;
+            localStorage.setItem("userPoints", currentPoints);
+            document.getElementById("userPoints").innerText = currentPoints;
+            alert("Task Completed! You earned 10 points.");
+        }
+
+        function copyReferral() {
+            const referralInput = document.getElementById("referralLink");
+            referralInput.select();
+            document.execCommand("copy");
+            alert("Referral link copied!");
+        }
+
+        function claimAirdrop() {
+            alert("Airdrop Claimed! Tokens will be sent to your wallet.");
+        }
 
         // 3D Background
         const scene = new THREE.Scene();
@@ -72,20 +150,20 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        const geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xff9900, metalness: 1, roughness: 0.3 });
-        const torusKnot = new THREE.Mesh(geometry, material);
-        scene.add(torusKnot);
+        const geometry = new THREE.SphereGeometry(8, 32, 32);
+        const material = new THREE.MeshStandardMaterial({ color: 0xffaa00, metalness: 0.9, roughness: 0.2 });
+        const sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
 
-        const light = new THREE.PointLight(0xffffff, 1, 100);
+        const light = new THREE.PointLight(0xffffff, 1.5, 100);
         light.position.set(10, 10, 10);
         scene.add(light);
 
-        camera.position.z = 30;
+        camera.position.z = 25;
         function animate() {
             requestAnimationFrame(animate);
-            torusKnot.rotation.x += 0.01;
-            torusKnot.rotation.y += 0.02;
+            sphere.rotation.y += 0.01;
+            sphere.rotation.x += 0.005;
             renderer.render(scene, camera);
         }
         animate();
